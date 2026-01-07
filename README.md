@@ -1,9 +1,17 @@
+- 第一步  
+# 青龙docker 一键安装
+```
+sudo apt-get update -y && wget -qO- https://raw.githubusercontent.com/djkyc/qinlong/master/ql.sh | bash
+```
+--- 
+官方: `docker pull whyour/qinglong:debian`
+
+- 第二步
 # 青龙 + Cloudflare 一键部署脚本
 
 > ⚡ 本项目提供一键部署青龙面板 + Cloudflare + 自动续签证书的脚本，支持原版和 CDN 加速版。
 
---- 
-官方: `docker pull whyour/qinglong:debian`
+
 
 ## 🚀 一键部署命令
 
