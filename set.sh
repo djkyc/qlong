@@ -22,20 +22,26 @@ fi
 # ============================================================
 
 # 提示用户输入 Cloudflare API Token
-read -p "请输入你的 Cloudflare API Token: " CF_API_TOKEN
+echo "请输入你的 Cloudflare API Token。"
+read -p "Cloudflare API Token: " CF_API_TOKEN
 
 # 提示用户输入 Cloudflare Zone ID
-read -p "请输入你的 Cloudflare Zone ID: " CF_ZONE_ID
+echo "请输入你的 Cloudflare Zone ID。"
+read -p "Cloudflare Zone ID: " CF_ZONE_ID
 
 # 提示用户输入域名
-read -p "请输入你的域名（例如 ql.example.com）: " DOMAIN
+echo "请输入你的域名，例如：ql.example.com"
+echo "在 Cloudflare 控制面板中查看并确认你的域名。"
+read -p "域名: " DOMAIN
 
-# 自动检测本机公网 IP，若用户未输入 IP，则使用自动获取的公网 IP
-read -p "请输入你的本机公网 IP（按回车跳过，默认自动检测）: " SERVER_IP
+# 提示用户输入公网 IP，如果未输入则自动获取
+echo "请输入你的本机公网 IP。如果不确定，可以直接按回车键跳过，我们会自动检测。"
+read -p "公网 IP: " SERVER_IP
 
 # 如果用户未输入公网 IP，则自动检测
 if [ -z "$SERVER_IP" ]; then
   SERVER_IP=$(curl -s https://ipinfo.io/ip)
+  echo "自动检测到公网 IP: $SERVER_IP"
 fi
 
 echo "👉 检查并安装依赖..."
@@ -97,7 +103,7 @@ if ! docker ps -a --format '{{.Names}}' | grep -q '^qinglong$'; then
     -v /ql/log:/ql/log \
     -v /ql/db:/ql/db \
     -p 5700:5700 \
-    whyour/qinglong:latest
+    ghcr.io/djkyc/qinglong:latest
 elif [ "$(docker inspect -f '{{.State.Running}}' qinglong)" != "true" ]; then
   echo "🟢 启动已存在的青龙容器..."
   docker start qinglong
@@ -196,4 +202,3 @@ echo "🌐 访问地址: https://$DOMAIN"
 echo "🐋 青龙容器状态: $(docker inspect -f '{{.State.Status}}' qinglong)"
 echo "🕒 自动续签任务: 每天凌晨检测证书有效期，如少于7天自动续签并重载 Nginx"
 echo "🎉 青龙面板已通过 Cloudflare 域名 + HTTPS 智能维护部署完成！"
-echo
