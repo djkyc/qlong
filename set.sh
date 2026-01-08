@@ -13,8 +13,8 @@ if file "$0" | grep -q "CRLF"; then
     sed -i 's/\r$//' "$0"
   fi
   echo "✅ 修复完成，重新运行脚本..."
-  exec bash "$0"  # 重新执行修复后的脚本
-  exit 0  # 确保重新执行后退出
+  exec bash "$0"
+  exit 0
 fi
 
 # ============================================================
@@ -27,6 +27,7 @@ DOMAIN="ql.netlib.re"            # 例如 ql.example.com
 SERVER_IP=""         # 公网 IP（若留空则自动检测）
 
 # ============================================================
+
 # 自动检测公网 IP
 if [ -z "$SERVER_IP" ]; then
   SERVER_IP=$(curl -s https://ipinfo.io/ip)
