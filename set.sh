@@ -32,7 +32,7 @@ read -p "Cloudflare Zone ID: " CF_ZONE_ID
 # 提示用户输入域名
 echo "请输入你的域名，例如：ql.example.com"
 echo "在 Cloudflare 控制面板中查看并确认你的域名。"
-read -p "域名: " DOMAIN
+read -p "先cf做A记录域名: " DOMAIN
 
 # 提示用户输入公网 IP，如果未输入则自动获取
 echo "请输入你的本机公网 IP。如果不确定，可以直接按回车键跳过，我们会自动检测。"
@@ -202,3 +202,4 @@ echo "🌐 访问地址: https://$DOMAIN"
 echo "🐋 青龙容器状态: $(docker inspect -f '{{.State.Status}}' qinglong)"
 echo "🕒 自动续签任务: 每天凌晨检测证书有效期，如少于7天自动续签并重载 Nginx"
 echo "🎉 青龙面板已通过 Cloudflare 域名 + HTTPS 智能维护部署完成！"
+
