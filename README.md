@@ -14,14 +14,14 @@
 
 1️⃣ 原版命令（raw.githubusercontent）
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/dj56959566/qlong/refs/heads/main/set.sh | sed 's/\r$//')
+bash <(curl -fsSL https://raw.githubusercontent.com/dj56959566/qlong/refs/heads/2.0/set.sh | sed 's/\r$//')
 
 ```
 💡 原版命令直接从 GitHub 官方下载，适合海外或网络稳定的用户。
 
 2️⃣ CDN 加速版本命令（国内访问更快）
 ```bash
-bash <(curl -fsSL https://cdn.jsdelivr.net/gh/dj56959566/qlong@main/set.sh | sed 's/\r$//')
+bash <(curl -fsSL https://cdn.jsdelivr.net/gh/dj56959566/qlong@2.0/set.sh | sed 's/\r$//')
 
 ```
 💡 加速版本使用 JSDelivr 的 GitHub CDN，下载速度更快、更稳定，适合国内用户。
