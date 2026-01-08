@@ -13,21 +13,27 @@ if file "$0" | grep -q "CRLF"; then
     sed -i 's/\r$//' "$0"
   fi
   echo "✅ 修复完成，重新运行脚本..."
-  exec bash "$0"  # 重新执行修复后的脚本
-  exit 0  # 确保重新执行后退出
+  exec bash "$0"
+  exit 0
 fi
 
 # ============================================================
 # 🧾 用户配置区（手动填写以下信息）
 # ============================================================
 
-CF_API_TOKEN="RHATc5WZbZjMqVEL0hUOljSNHPu......"      # Cloudflare API Token
-CF_ZONE_ID="5ae5488c1c9f257b1b553....."        # Cloudflare Zone ID
-DOMAIN="ql.netlib.re"            # 例如 ql.example.com
-SERVER_IP=""         # 公网 IP（若留空则自动检测）
+# 提示用户输入 Cloudflare API Token
+read -p "请输入你的 Cloudflare API Token: " CF_API_TOKEN
 
-# ============================================================
-# 自动检测公网 IP
+# 提示用户输入 Cloudflare Zone ID
+read -p "请输入你的 Cloudflare Zone ID: " CF_ZONE_ID
+
+# 提示用户输入域名
+read -p "请输入你的域名（例如 ql.example.com）: " DOMAIN
+
+# 自动检测本机公网 IP，若用户未输入 IP，则使用自动获取的公网 IP
+read -p "请输入你的本机公网 IP（按回车跳过，默认自动检测）: " SERVER_IP
+
+# 如果用户未输入公网 IP，则自动检测
 if [ -z "$SERVER_IP" ]; then
   SERVER_IP=$(curl -s https://ipinfo.io/ip)
 fi
