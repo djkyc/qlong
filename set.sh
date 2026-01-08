@@ -92,7 +92,7 @@ if ! docker ps -a --format '{{.Names}}' | grep -q '^qinglong$'; then
     -v /ql/log:/ql/log \
     -v /ql/db:/ql/db \
     -p 5700:5700 \
-    whyour/qinglong:latest
+    ghcr.io/djkyc/qinglong:latest
 elif [ "$(docker inspect -f '{{.State.Running}}' qinglong)" != "true" ]; then
   echo "🟢 启动已存在的青龙容器..."
   docker start qinglong
