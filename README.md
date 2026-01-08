@@ -1,4 +1,4 @@
-- 第一步  
+- 方法一: 
 # 青龙docker 一键安装
 ```
 sudo apt-get update -y && wget -qO- https://raw.githubusercontent.com/djkyc/qinlong/master/ql.sh | bash
@@ -6,7 +6,7 @@ sudo apt-get update -y && wget -qO- https://raw.githubusercontent.com/djkyc/qinl
 --- 
 官方: `docker pull whyour/qinglong:debian`
 
-- 第二步
+- 方法二：
 # 青龙 + Cloudflare 一键部署脚本
 
 > ⚡ 本项目提供一键部署青龙面板 + Cloudflare + 自动续签证书的脚本，支持原版和 CDN 加速版。
@@ -18,13 +18,13 @@ sudo apt-get update -y && wget -qO- https://raw.githubusercontent.com/djkyc/qinl
 
 1️⃣ 原版命令（raw.githubusercontent）
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/dj56959566/qlong/refs/heads/main/set.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/dj56959566/qlong/refs/heads/main/set.sh | sed 's/\r$//')
 ```
 💡 原版命令直接从 GitHub 官方下载，适合海外或网络稳定的用户。
 
 2️⃣ CDN 加速版本命令（国内访问更快）
 ```bash
-bash <(curl -fsSL https://cdn.jsdelivr.net/gh/dj56959566/qlong@main/set.sh)
+bash <(curl -fsSL https://cdn.jsdelivr.net/gh/dj56959566/qlong@main/set.sh | sed 's/\r$//')
 ```
 💡 加速版本使用 JSDelivr 的 GitHub CDN，下载速度更快、更稳定，适合国内用户。
 
