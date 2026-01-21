@@ -1,86 +1,117 @@
 #!/bin/bash
 set -e
 
-echo "========== 架构检测 =========="
+echo "=============================="
+echo " 青龙 Docker 多架构安装脚本 "
+echo "=============================="
+
+# ----------------------------
+# 1. 检测系统架构
+# ----------------------------
 ARCH=$(uname -m)
 
 case "$ARCH" in
   x86_64)
-    ARCH_NAME="amd64"
+    DOCKER_PLATFORM="linux/amd64"
     ;;
   aarch64)
-    ARCH_NAME="arm64"
+    DOCKER_PLATFORM="linux/arm64"
     ;;
-  armv7l|armhf)
-    ARCH_NAME="arm32"
+  armv7l)
+    DOCKER_PLATFORM="linux/arm/v7"
     ;;
   *)
-    echo "⚠️ 未识别架构: $ARCH，尝试继续执行"
-    ARCH_NAME="unknown"
+    echo "❌ 不支持的架构: $ARCH"
+    exit 1
     ;;
 esac
 
-echo "CPU 架构: $ARCH ($ARCH_NAME)"
+echo "✅ 检测到系统架构: $ARCH -> $DOCKER_PLATFORM"
 
-echo "========== 安装 Docker =========="
+# ----------------------------
+# 2. 安装 Docker
+# ----------------------------
+echo "👉 安装 Docker..."
 
 sudo apt-get update -y
 sudo apt-get install -y \
+  apt-transport-https \
   ca-certificates \
   curl \
-  gnupg \
-  lsb-release
+  software-properties-common \
+  jq
 
-# Docker 官方 GPG
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg | \
-  sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+  | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
-# ⚠️ 不指定 arch，APT 自动适配 CPU
 echo \
-  "deb [signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/$(. /etc/os-release && echo "$ID") \
-  $(lsb_release -cs) stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
+https://download.docker.com/linux/ubuntu \
+$(lsb_release -cs) stable" \
+| sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 sudo apt-get update -y
-sudo apt-get install -y \
-  docker-ce \
-  docker-ce-cli \
-  containerd.io \
-  docker-compose-plugin
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
-sudo systemctl enable docker
-sudo systemctl start docker
+# ----------------------------
+# 3. 安装 Docker Compose（v1 兼容版）
+# ----------------------------
+echo "👉 安装 Docker Compose..."
+
+sudo curl -L \
+"https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" \
+-o /usr/local/bin/docker-compose
+
+sudo chmod +x /usr/local/bin/docker-compose
 
 docker --version
-docker compose version
+docker-compose --version
 
-echo "========== 配置青龙 =========="
-
-WORKDIR="$HOME/qinglong"
+# ----------------------------
+# 4. 创建工作目录
+# ----------------------------
+WORKDIR="$HOME/ql_data"
 mkdir -p "$WORKDIR/data"
-cd "$WORKDIR"
 
-# 多架构官方镜像（支持 amd64 / arm64 / arm32）
-IMAGE="whyour/qinglong:latest"
+# ----------------------------
+# 5. 生成 docker-compose.yml（多架构）
+# ----------------------------
+echo "👉 生成 docker-compose.yml"
 
-cat > docker-compose.yml <<EOF
-version: "3.8"
+cat > "$WORKDIR/docker-compose.yml" <<EOF
+version: '3.8'
 services:
   qinglong:
-    image: $IMAGE
+    image: ghcr.io/djkyc/qinglong:latest
     container_name: qinglong
-    restart: unless-stopped
+    platform: ${DOCKER_PLATFORM}
+    restart: always
+    volumes:
+      - ${WORKDIR}/data:/ql/data
     ports:
       - "5700:5700"
-    volumes:
-      - ./data:/ql/data
+    environment:
+      - PM2_HOME=/root/.pm2
+    networks:
+      - ql_network
+
+networks:
+  ql_network:
+    driver: bridge
 EOF
 
-echo "========== 启动青龙 =========="
-docker compose up -d
+# ----------------------------
+# 6. 启动容器
+# ----------------------------
+echo "👉 启动青龙容器..."
+cd "$WORKDIR"
+docker-compose up -d
 
-echo "========== 安装完成 =========="
-echo "架构: $ARCH_NAME"
-echo "访问地址: http://<服务器IP>:5700"
+# ----------------------------
+# 7. 完成提示
+# ----------------------------
+echo "=============================="
+echo " 🎉 青龙安装完成！"
+echo " 架构: $DOCKER_PLATFORM"
+echo " 访问地址: http://<你的服务器IP>:5700"
+echo "=============================="
