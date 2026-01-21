@@ -1,26 +1,28 @@
-FROM --platform=linux/arm64 python:3.10-slim
+ARG TARGETPLATFORM
+FROM python:3.10-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /ql
 
-# 基础依赖（Chromium 运行必需）
+# Chromium 运行依赖
 RUN apt-get update && apt-get install -y \
-    wget curl unzip git \
+    curl wget unzip git ca-certificates \
     libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
     libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 \
     libgbm1 libasound2 libxrandr2 libgtk-3-0 \
     fonts-liberation libu2f-udev \
-    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 Playwright（ARM64 有 wheel）
+# Playwright + Chromium（ARM64）
 RUN pip install --no-cache-dir playwright==1.41.2 requests \
-    && playwright install chromium
+ && playwright install chromium
 
-# 安装青龙
-RUN wget -O ql.sh https://raw.githubusercontent.com/whyour/qinglong/master/docker/docker.sh \
-    && bash ql.sh
+# 安装青龙（稳定版）
+RUN curl -fsSL --retry 5 --retry-delay 3 \
+    https://raw.githubusercontent.com/whyour/qinglong/master/docker/docker.sh \
+    -o ql.sh \
+ && chmod +x ql.sh \
+ && bash ql.sh
 
 EXPOSE 5700
-
 CMD ["./ql.sh"]
