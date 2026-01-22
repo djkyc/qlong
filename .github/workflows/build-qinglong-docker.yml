@@ -1,4 +1,4 @@
-name: 青龙容器专用版-docker（跟随官方 Release）
+name: 青龙容器专用版-docker（跟随官方 Tag）
 
 on:
   workflow_dispatch:
@@ -6,7 +6,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: qinglong
-  QL_REPO: whyour/qinglong
 
 jobs:
   build:
@@ -20,18 +19,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get latest QingLong release
-        id: ql_release
+      - name: Get latest QingLong tag
+        id: ql_tag
         run: |
-          TAG=$(curl -s https://api.github.com/repos/${QL_REPO}/releases/latest | jq -r .tag_name)
+          TAG=$(curl -s https://api.github.com/repos/whyour/qinglong/tags | jq -r '.[0].name')
           VERSION=${TAG#v}
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Latest QingLong version: $VERSION"
+          echo "Latest QingLong tag: $TAG"
 
-      - name: Clone QingLong source (release tag)
+      - name: Clone QingLong source
         run: |
-          git clone -b ${{ steps.ql_release.outputs.tag }} https://github.com/whyour/qinglong.git
+          git clone -b ${{ steps.ql_tag.outputs.tag }} https://github.com/whyour/qinglong.git
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -53,9 +52,9 @@ jobs:
         with:
           context: ./qinglong
           file: ./qinglong/docker/Dockerfile
-          push: true
           pull: true
+          push: true
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.ql_release.outputs.version }}-debian
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.ql_tag.outputs.version }}-debian
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
